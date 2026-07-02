@@ -1,0 +1,107 @@
+[0m20:14:35.366445 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cea44ec1340>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cea44e21af0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cea44d5c080>]}
+
+
+============================== 20:14:35.505895 | c8724f61-2b60-4b7d-a02b-e24707cddd3f ==============================
+[0m20:14:35.505895 [info ] [MainThread]: Running with dbt=1.11.12
+[0m20:14:35.508704 [debug] [MainThread]: running dbt with arguments {'introspect': 'True', 'quiet': 'False', 'log_format': 'default', 'target_path': 'None', 'cache_selected_only': 'False', 'static_parser': 'True', 'log_path': 'logs', 'invocation_command': 'dbt init', 'use_colors': 'True', 'version_check': 'True', 'fail_fast': 'False', 'no_print': 'None', 'write_json': 'True', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'empty': 'None', 'send_anonymous_usage_stats': 'True', 'debug': 'False', 'partial_parse': 'True', 'printer_width': '80', 'profiles_dir': '/home/livsa/.dbt', 'warn_error': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'log_cache_events': 'False'}
+[0m20:14:37.375410 [info ] [MainThread]: Creating dbt configuration folder at /home/livsa/.dbt
+[0m20:17:34.896350 [debug] [MainThread]: Starter project path: /mnt/c/Users/livsa/Projetos/dbt_projeto/.venv/lib/python3.12/site-packages/dbt/include/starter_project
+[0m20:17:36.595437 [info ] [MainThread]: 
+Your new dbt project "pipeline_adventure_work" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m20:17:36.599551 [info ] [MainThread]: Setting up your profile.
+[0m20:20:19.897667 [info ] [MainThread]: Profile pipeline_adventure_work written to /home/livsa/.dbt/profiles.yml using target's profile_template.yml and your supplied values. Run 'dbt debug' to validate the connection.
+[0m20:20:19.915185 [debug] [MainThread]: Resource report: {"command_name": "init", "command_success": true, "command_wall_clock_time": 344.6681, "process_in_blocks": "28320", "process_kernel_time": 6.734915, "process_mem_max_rss": "126708", "process_out_blocks": "8", "process_user_time": 9.108045}
+[0m20:20:19.921328 [debug] [MainThread]: Command `dbt init` succeeded at 20:20:19.920968 after 344.67 seconds
+[0m20:20:19.924527 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cea45f75e20>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cea4447acf0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7cea449835c0>]}
+[0m20:20:19.928387 [debug] [MainThread]: Flushing usage events
+[0m20:20:21.161348 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m20:28:43.717903 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7606d0c07bc0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7606d0e07c20>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7606d2db8860>]}
+
+
+============================== 20:28:43.755081 | 882e323c-d8ea-4217-90b1-875258da7603 ==============================
+[0m20:28:43.755081 [info ] [MainThread]: Running with dbt=1.11.12
+[0m20:28:43.760521 [debug] [MainThread]: running dbt with arguments {'log_cache_events': 'False', 'log_format': 'default', 'partial_parse': 'True', 'indirect_selection': 'eager', 'debug': 'False', 'static_parser': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'log_path': 'logs', 'quiet': 'False', 'target_path': 'None', 'introspect': 'True', 'profiles_dir': '/home/livsa/.dbt', 'empty': 'None', 'version_check': 'True', 'use_colors': 'True', 'invocation_command': 'dbt debug', 'warn_error': 'None', 'printer_width': '80', 'cache_selected_only': 'False', 'fail_fast': 'False', 'send_anonymous_usage_stats': 'True', 'no_print': 'None', 'write_json': 'True', 'use_experimental_parser': 'False'}
+[0m20:28:45.123347 [info ] [MainThread]: dbt version: 1.11.12
+[0m20:28:45.128352 [info ] [MainThread]: python version: 3.12.3
+[0m20:28:45.131355 [info ] [MainThread]: python path: /mnt/c/Users/livsa/Projetos/dbt_projeto/.venv/bin/python3
+[0m20:28:45.135440 [info ] [MainThread]: os info: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39
+[0m20:28:47.120904 [info ] [MainThread]: Using profiles dir at /home/livsa/.dbt
+[0m20:28:47.123958 [info ] [MainThread]: Using profiles.yml file at /home/livsa/.dbt/profiles.yml
+[0m20:28:47.126825 [info ] [MainThread]: Using dbt_project.yml file at /mnt/c/Users/livsa/Projetos/dbt_projeto/dbt_project.yml
+[0m20:28:47.211643 [info ] [MainThread]: adapter type: postgres
+[0m20:28:47.215152 [info ] [MainThread]: adapter version: 1.10.2
+[0m20:28:47.219351 [info ] [MainThread]: Configuration:
+[0m20:28:47.223686 [info ] [MainThread]:   profiles.yml file [[32mOK found and valid[0m]
+[0m20:28:47.227132 [info ] [MainThread]:   dbt_project.yml file [[31mERROR not found[0m]
+[0m20:28:47.230939 [info ] [MainThread]: Required dependencies:
+[0m20:28:47.234915 [debug] [MainThread]: Executing "git --help"
+[0m20:28:47.298025 [debug] [MainThread]: STDOUT: "b"usage: git [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]\n           [--config-env=<name>=<envvar>] <command> [<args>]\n\nThese are common Git commands used in various situations:\n\nstart a working area (see also: git help tutorial)\n   clone     Clone a repository into a new directory\n   init      Create an empty Git repository or reinitialize an existing one\n\nwork on the current change (see also: git help everyday)\n   add       Add file contents to the index\n   mv        Move or rename a file, a directory, or a symlink\n   restore   Restore working tree files\n   rm        Remove files from the working tree and from the index\n\nexamine the history and state (see also: git help revisions)\n   bisect    Use binary search to find the commit that introduced a bug\n   diff      Show changes between commits, commit and working tree, etc\n   grep      Print lines matching a pattern\n   log       Show commit logs\n   show      Show various types of objects\n   status    Show the working tree status\n\ngrow, mark and tweak your common history\n   branch    List, create, or delete branches\n   commit    Record changes to the repository\n   merge     Join two or more development histories together\n   rebase    Reapply commits on top of another base tip\n   reset     Reset current HEAD to the specified state\n   switch    Switch branches\n   tag       Create, list, delete or verify a tag object signed with GPG\n\ncollaborate (see also: git help workflows)\n   fetch     Download objects and refs from another repository\n   pull      Fetch from and integrate with another repository or a local branch\n   push      Update remote refs along with associated objects\n\n'git help -a' and 'git help -g' list available subcommands and some\nconcept guides. See 'git help <command>' or 'git help <concept>'\nto read about a specific subcommand or concept.\nSee 'git help git' for an overview of the system.\n""
+[0m20:28:47.307082 [debug] [MainThread]: STDERR: "b''"
+[0m20:28:47.312155 [info ] [MainThread]:  - git [[32mOK found[0m]
+
+[0m20:28:47.316779 [info ] [MainThread]: Connection:
+[0m20:28:47.322023 [info ] [MainThread]:   host: host.docker.internal
+[0m20:28:47.327168 [info ] [MainThread]:   port: 5432
+[0m20:28:47.333854 [info ] [MainThread]:   user: cristal
+[0m20:28:47.339767 [info ] [MainThread]:   database: dw
+[0m20:28:47.344846 [info ] [MainThread]:   schema: public
+[0m20:28:47.350271 [info ] [MainThread]:   connect_timeout: 10
+[0m20:28:47.355543 [info ] [MainThread]:   role: None
+[0m20:28:47.359965 [info ] [MainThread]:   search_path: None
+[0m20:28:47.367452 [info ] [MainThread]:   keepalives_idle: 0
+[0m20:28:47.373058 [info ] [MainThread]:   sslmode: None
+[0m20:28:47.378018 [info ] [MainThread]:   sslcert: None
+[0m20:28:47.385938 [info ] [MainThread]:   sslkey: None
+[0m20:28:47.393649 [info ] [MainThread]:   sslrootcert: None
+[0m20:28:47.399885 [info ] [MainThread]:   application_name: dbt
+[0m20:28:47.407614 [info ] [MainThread]:   retries: 1
+[0m20:28:47.424516 [info ] [MainThread]: Registered adapter: postgres=1.10.2
+[0m20:29:25.197178 [debug] [MainThread]: Acquiring new postgres connection 'debug'
+[0m20:29:38.504658 [debug] [MainThread]: Using postgres connection "debug"
+[0m20:29:38.509722 [debug] [MainThread]: On debug: select 1 as id
+[0m20:29:38.513960 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m20:29:48.565442 [debug] [MainThread]: Postgres adapter: Got a retryable error when attempting to open a postgres connection.
+1 attempts remaining. Retrying in 0 seconds.
+Error:
+connection to server at "host.docker.internal" (192.168.18.66), port 5432 failed: timeout expired
+
+[0m20:29:58.612008 [debug] [MainThread]: Postgres adapter: Error running SQL: select 1 as id
+[0m20:29:58.621447 [debug] [MainThread]: Postgres adapter: Rolling back transaction.
+[0m20:29:58.624814 [debug] [MainThread]: On debug: No close available on handle
+[0m20:29:58.628358 [info ] [MainThread]:   Connection test: [[31mERROR[0m]
+
+[0m20:29:58.632441 [info ] [MainThread]: [31m2 checks failed:[0m
+[0m20:29:58.637789 [info ] [MainThread]: Project loading failed for the following reason:
+ project path </mnt/c/Users/livsa/Projetos/dbt_projeto/dbt_project.yml> not found
+
+[0m20:29:58.641136 [info ] [MainThread]: dbt was unable to connect to the specified database.
+The database returned the following error:
+
+  >Database Error
+  connection to server at "host.docker.internal" (192.168.18.66), port 5432 failed: timeout expired
+  
+
+Check your database credentials and try again. For more information, visit:
+https://docs.getdbt.com/docs/configure-your-profile
+
+
+[0m20:29:58.670142 [debug] [MainThread]: Resource report: {"command_name": "debug", "command_success": false, "command_wall_clock_time": 75.127365, "process_in_blocks": "36720", "process_kernel_time": 7.316582, "process_mem_max_rss": "115032", "process_out_blocks": "8", "process_user_time": 7.118349}
+[0m20:29:58.673832 [debug] [MainThread]: Command `dbt debug` failed at 20:29:58.673568 after 75.13 seconds
+[0m20:29:58.682417 [debug] [MainThread]: Connection 'debug' was properly closed.
+[0m20:29:58.689444 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7606d402bfe0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7606cfd678f0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7606cf4c7620>]}
+[0m20:29:58.694578 [debug] [MainThread]: Flushing usage events
+[0m20:29:59.924345 [debug] [MainThread]: An error was encountered while trying to flush usage events

@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    description: "Dados brutos ingeridos do SQL Server (AdventureWorks)"
+    tables:
+      - name: sales_order_header
+        description: "Pedidos de venda, ingestão incremental via watermark ModifiedDate"
+        loaded_at_field: _loaded_at

@@ -1,0 +1,11 @@
+SELECT [TerritoryID]
+      ,[Name]
+      ,[CountryRegionCode]
+      ,[Group]
+      ,[SalesYTD]
+      ,[SalesLastYear]
+      ,[CostYTD]
+      ,[CostLastYear]
+      ,[ModifiedDate]
+  FROM [Sales].[SalesTerritory]
+  WHERE (:modified_since IS NULL OR ModifiedDate > :modified_since)

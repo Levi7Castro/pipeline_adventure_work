@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: stg_sales_order_header
+    description: "SalesOrderHeader limpo: deduplicado por sales_order_id, tipado e renomeado"
+    columns:
+      - name: sales_order_id
+        description: "Chave primária do pedido"
+        data_tests:
+          - unique
+          - not_null
+      - name: subtotal
+        data_tests:
+          - not_null
+      - name: total_due
+        data_tests:
+          - not_null

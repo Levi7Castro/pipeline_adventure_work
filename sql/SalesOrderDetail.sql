@@ -1,0 +1,12 @@
+SELECT [SalesOrderID]
+      ,[SalesOrderDetailID]
+      ,[CarrierTrackingNumber]
+      ,[OrderQty]
+      ,[ProductID]
+      ,[SpecialOfferID]
+      ,[UnitPrice]
+      ,[UnitPriceDiscount]
+      ,[LineTotal]
+      ,[ModifiedDate]
+  FROM [Sales].[SalesOrderDetail]
+  WHERE (:modified_since IS NULL OR ModifiedDate > :modified_since)

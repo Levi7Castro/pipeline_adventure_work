@@ -2,179 +2,134 @@
 
 ## 📌 Overview
 
-Este projeto implementa um pipeline de dados completo utilizando uma arquitetura moderna de Engenharia de Dados baseada no conceito **ELT** e na **Arquitetura Medallion**.
+Pipeline de dados completo utilizando arquitetura **ELT** com **Arquitetura Medallion** (Bronze → Silver → Gold).
 
-A solução extrai dados do banco **AdventureWorks2022 (SQL Server)**, realiza a ingestão utilizando **Python + SQLAlchemy**, persiste os dados em formato **Parquet** e os carrega para um **Data Warehouse PostgreSQL**, onde o **dbt** é responsável pelas transformações das camadas Bronze, Silver e Gold. Todo o fluxo será orquestrado pelo **Apache Airflow**.
+O projeto extrai dados do banco **AdventureWorks2022 (SQL Server)**, ingere via **Python + SQLAlchemy + pandas**, carrega em um **Data Warehouse PostgreSQL**, e usa **dbt** para as transformações das camadas Silver e Gold — incluindo modelagem dimensional (fato + dimensões) com testes de qualidade e integridade referencial.
 
-O objetivo deste projeto é demonstrar boas práticas de Engenharia de Dados, incluindo organização de código, versionamento, modelagem analítica, qualidade de dados e automação de pipelines.
+Projeto desenvolvido para demonstrar boas práticas de Engenharia de Dados: ingestão incremental, versionamento de código, modelagem analítica, testes automatizados e documentação técnica honesta (incluindo limitações conhecidas).
 
 ---
 
-# 🏗️ Arquitetura
+## 🏗️ Arquitetura
 
 ```text
-                    AdventureWorks2022
-                       SQL Server
+                AdventureWorks2022 (SQL Server)
                             │
-                SQLAlchemy + PyODBC
+                SQLAlchemy + PyODBC (extract)
                             │
                             ▼
                     Pandas DataFrame
                             │
-                            ▼
-                 Parquet (Raw Landing)
+                     to_sql (load)
                             │
                             ▼
-             PostgreSQL - Bronze Layer
+              PostgreSQL — Bronze Layer
                             │
-                      dbt Transformations
-          ┌─────────────────┼─────────────────┐
-          ▼                 ▼                 ▼
-      Bronze            Silver             Gold
+                    dbt (staging + dedup)
                             │
                             ▼
-                    Apache Airflow
+                     Silver Layer
+                            │
+              dbt (modelagem dimensional)
+                            │
+                            ▼
+              Gold Layer (fato + dimensões)
+                            │
+                            ▼
+              Apache Airflow (orquestração)
 ```
 
 ---
 
-# 🚀 Tecnologias
+## 🚀 Tecnologias
 
 * Python 3.12
-* SQLAlchemy
-* PyODBC
-* Pandas
-* PyArrow
-* PostgreSQL
-* SQL Server
-* dbt Core
-* Apache Airflow
-* Git
-* uv (Python Package Manager)
+* SQLAlchemy + PyODBC (extração SQL Server)
+* Pandas (transformação em memória)
+* PostgreSQL (Data Warehouse)
+* dbt Core (transformações Silver/Gold + testes)
+* Apache Airflow (orquestração — em andamento)
+* Git / GitHub (versionamento)
+* uv (gerenciador de pacotes Python)
 
 ---
 
-# 📂 Estrutura do Projeto
+## 📂 Estrutura do Projeto
 
 ```text
 dbt_projeto/
-
 ├── airflow/
 │   ├── dags/
 │   └── plugins/
-│
-├── data/
-│   ├── bronze/
-│   ├── silver/
-│   └── gold/
-│
-├── docs/
-│
 ├── ingestion/
 │   ├── extract/
+│   │   └── extract_generic.py      # extração parametrizada por tabela
 │   ├── load/
-│   ├── transform/
-│   ├── config.py
-│   ├── database.py
-│   └── main.py
-│
+│   │   └── load_adventure.py       # carga genérica (append/replace)
+│   ├── config.py                   # variáveis de ambiente
+│   ├── database.py                 # engines SQLAlchemy (SQL Server + Postgres)
+│   ├── tables.py                   # config: tabelas, watermark, flags
+│   └── main.py                     # orquestra extract → load → watermark
 ├── pipeline_adventure_work/
-│   ├── models/
-│   │   ├── bronze/
-│   │   ├── silver/
-│   │   └── gold/
-│   ├── macros/
-│   ├── tests/
-│   ├── snapshots/
-│   └── dbt_project.yml
-│
-├── sql/
-│
-├── .env.example
+│   └── models/
+│       ├── silver/                 # staging: dedup + tipagem + rename
+│       └── gold/                   # fato + dimensões
+├── sql/                            # um .sql por tabela de origem
+├── .env                            # credenciais (não versionado)
 ├── pyproject.toml
 └── README.md
 ```
 
 ---
 
-# 📖 Arquitetura Medallion
+## 📖 Arquitetura Medallion
 
-## 🥉 Bronze
+### 🥉 Bronze
+Ingestão bruta das 6 tabelas do AdventureWorks, sem transformação de negócio.
 
-Responsável pela ingestão dos dados exatamente como são recebidos da origem.
+* Extração incremental via watermark (`ModifiedDate`)
+* Carga `append` no Postgres (schema `bronze`)
+* Metadados de auditoria (`_loaded_at`)
+* Watermark persistido em `_meta.ingestion_watermark`
 
-Características:
+### 🥈 Silver
+Staging via dbt: um modelo por tabela de origem.
 
-* Dados sem transformação de negócio
-* Persistência em Parquet
-* Carga para PostgreSQL
-* Histórico da origem
+* Deduplicação por chave primária (`row_number() over (partition by ... order by ModifiedDate desc)`)
+* Tipagem correta (ex.: `money` do SQL Server → `numeric(19,4)` no Postgres, evitando perda de precisão)
+* Rename para `snake_case`
+* Testes `unique` / `not_null` em todas as chaves
 
----
+### 🥇 Gold
+Modelagem dimensional para consumo analítico.
 
-## 🥈 Silver
-
-Camada responsável pela padronização e preparação dos dados.
-
-Exemplos:
-
-* Conversão de tipos
-* Remoção de duplicidades
-* Tratamento de valores nulos
-* Padronização de colunas
-* Aplicação de regras de qualidade
-
-Implementada utilizando **dbt Models**.
-
----
-
-## 🥇 Gold
-
-Camada analítica.
-
-Responsável pela criação de:
-
-* Fatos
-* Dimensões
-* Métricas
-* Indicadores
-* Tabelas para consumo analítico
+* **`fct_sales`** — fato no grão de linha de pedido (`sales_order_detail_id`)
+* **`dim_customer`** — cliente (join `Customer` + `Person`)
+* **`dim_product`** — produto
+* **`dim_territory`** — território de vendas
+* **`dim_date`** — calendário gerado via `generate_series`
+* Testes de integridade referencial (`relationships`) entre fato e dimensões
 
 ---
 
-# 🔄 Pipeline
+## 📊 Tabelas Ingeridas
 
-1. Extração do SQL Server
-2. Leitura utilizando SQLAlchemy
-3. Conversão para DataFrame
-4. Persistência em Parquet
-5. Carga para PostgreSQL (Bronze)
-6. Transformações com dbt
-7. Testes de qualidade
-8. Publicação das camadas Silver e Gold
-9. Orquestração pelo Apache Airflow
+| Tabela origem | Nome na bronze | Modo de carga |
+|---|---|---|
+| `Sales.SalesOrderHeader` | `sales_order_header` | Incremental |
+| `Sales.SalesOrderDetail` | `sales_order_detail` | Incremental |
+| `Production.Product` | `product` | Incremental |
+| `Sales.Customer` | `customer` | Full refresh* |
+| `Person.Person` | `person` | Full refresh* |
+| `Sales.SalesTerritory` | `sales_territory` | Incremental |
 
----
-
-# 📊 Fonte de Dados
-
-Banco de dados:
-
-* AdventureWorks2022
-
-Tabela inicial utilizada no projeto:
-
-* `Sales.SalesOrderHeader`
-
-O projeto foi estruturado para permitir expansão para múltiplas tabelas.
+\* Ver [Limitações Conhecidas](#-limitações-conhecidas).
 
 ---
 
-# ⚙️ Configuração
+## ⚙️ Configuração
 
-Crie um arquivo `.env` na raiz do projeto.
-
-Exemplo:
+Crie um arquivo `.env` na raiz do projeto:
 
 ```dotenv
 SQLSERVER_HOST=
@@ -190,74 +145,97 @@ POSTGRES_USER=
 POSTGRES_PASSWORD=
 ```
 
----
-
-# ▶️ Executando
-
-Criar ambiente virtual:
+Pré-requisitos de sistema (Linux/WSL):
 
 ```bash
-uv venv
-source .venv/bin/activate
+sudo apt install unixodbc unixodbc-dev
+# + driver ODBC 18 da Microsoft (ver docs da Microsoft para o repositório)
 ```
+
+---
+
+## ▶️ Executando
 
 Instalar dependências:
 
 ```bash
-uv sync
+uv pip install -e .
 ```
 
-Executar a ingestão:
+Rodar a ingestão (todas as 6 tabelas, respeitando watermark):
 
 ```bash
-python ingestion/main.py
+python -m ingestion.main
 ```
 
-Executar modelos dbt:
+Forçar recarga completa de todas as tabelas:
+
+```bash
+python -m ingestion.main --full-refresh
+```
+
+Rodar as transformações dbt:
 
 ```bash
 cd pipeline_adventure_work
-
 dbt debug
-
 dbt run
-
 dbt test
+dbt docs generate
+dbt docs serve
 ```
 
 ---
 
-# 📈 Evolução do Projeto
+## ⚠️ Limitações Conhecidas
+
+**Filtro incremental falha em `Customer` e `Person`.** O parâmetro de watermark bindado via `pyodbc` retorna resultado incorreto especificamente nessas duas tabelas (a query completa é retornada em vez de filtrada), mesmo com sintaxe idêntica às demais tabelas, que funcionam normalmente. A causa raiz não foi identificada — testes isolando SQLAlchemy, pandas e pyodbc puro reproduziram o mesmo comportamento, descartando bug de código na aplicação.
+
+**Mitigação atual:** essas duas tabelas rodam sempre em modo `full refresh` (flag `force_full_refresh` em `ingestion/tables.py`), o que é seguro dado o tamanho pequeno de ambas (~20k linhas cada). A camada Silver deduplica de qualquer forma, então a integridade do dado final não é afetada — apenas a eficiência da carga bronze.
+
+**Próximo passo de investigação:** testar com driver ODBC alternativo ou versão diferente do `pyodbc`, e revisar collation/locale da sessão SQL Server.
+
+**Pipeline não é seguro contra execução concorrente.** O padrão leitura-do-watermark → processamento → escrita-do-watermark não possui lock, sujeito a race condition se duas execuções rodarem simultaneamente. Mitigação: não executar `ingestion.main` em paralelo (o Airflow, quando implementado, resolve isso nativamente).
+
+---
+
+## 📈 Evolução do Projeto
 
 * [x] Estrutura inicial
 * [x] Configuração do PostgreSQL
 * [x] Configuração do dbt
-* [ ] Conexão SQL Server
-* [ ] Extração via SQLAlchemy
-* [ ] Persistência em Parquet
-* [ ] Carga Bronze
-* [ ] Modelos Silver
-* [ ] Modelos Gold
-* [ ] Testes dbt
-* [ ] Documentação dbt
+* [x] Conexão SQL Server
+* [x] Extração via SQLAlchemy (genérica, multi-tabela)
+* [x] Ingestão incremental com watermark
+* [x] Carga Bronze (6 tabelas)
+* [x] Modelos Silver (dedup + tipagem + rename, 6 tabelas)
+* [x] Modelos Gold (fato + 4 dimensões)
+* [x] Testes dbt (unique, not_null, relationships)
+* [x] Documentação dbt (`dbt docs generate`)
 * [ ] Orquestração com Apache Airflow
+* [ ] Dimensão de vendedor (`dim_sales_person`)
 * [ ] CI/CD
+* [ ] Investigação da causa raiz do bug de filtro incremental (Customer/Person)
 
 ---
 
-# 🎯 Objetivos Técnicos
+## 🎯 Objetivos Técnicos
 
-* Aplicar Arquitetura Medallion
-* Implementar pipeline ELT
-* Utilizar dbt para transformação de dados
+* Aplicar Arquitetura Medallion de ponta a ponta
+* Implementar pipeline ELT incremental e idempotente
+* Utilizar dbt para transformação, tipagem e teste de dados
+* Modelar fato e dimensões seguindo boas práticas de BI
+* Documentar limitações técnicas de forma transparente
 * Automatizar processos com Airflow
-* Aplicar boas práticas de Engenharia de Dados
 * Produzir um projeto completo para portfólio
 
 ---
 
-# 👨‍💻 Autor
+## 👨‍💻 Autor
 
 **Levi Castro**
 
-Projeto desenvolvido para estudos e demonstração de práticas de Engenharia de Dados utilizando Python, PostgreSQL, dbt e Apache Airflow.
+Projeto desenvolvido para estudos e demonstração de práticas de Engenharia de Dados utilizando Python, SQL Server, PostgreSQL, dbt e Apache Airflow.
+
+LinkedIn: [linkedin.com/in/levi-castro-b231652b7](https://linkedin.com/in/levi-castro-b231652b7)
+GitHub: [github.com/Levi7Castro](https://github.com/Levi7Castro)

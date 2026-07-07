@@ -1,0 +1,21 @@
+select
+    product_id,
+    product_subcategory_id,
+    product_model_id,
+    product_name,
+    product_number,
+    color,
+    size,
+    product_line,
+    class,
+    style,
+    is_manufactured,
+    is_finished_good,
+    standard_cost,
+    list_price,
+    weight,
+    sell_start_date,
+    sell_end_date,
+    discontinued_date,
+    modified_date
+from {{ ref('stg_product') }}

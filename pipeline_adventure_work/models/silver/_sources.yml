@@ -4,7 +4,17 @@ sources:
   - name: bronze
     schema: bronze
     description: "Dados brutos ingeridos do SQL Server (AdventureWorks)"
+    loaded_at_field: _loaded_at
     tables:
       - name: sales_order_header
-        description: "Pedidos de venda, ingestão incremental via watermark ModifiedDate"
-        loaded_at_field: _loaded_at
+        description: "Pedidos de venda"
+      - name: sales_order_detail
+        description: "Itens de cada pedido de venda"
+      - name: product
+        description: "Catálogo de produtos"
+      - name: customer
+        description: "Clientes"
+      - name: person
+        description: "Pessoas (relacionadas a clientes, funcionários etc.)"
+      - name: sales_territory
+        description: "Territórios de venda"

@@ -2,16 +2,43 @@ version: 2
 
 models:
   - name: stg_sales_order_header
-    description: "SalesOrderHeader limpo: deduplicado por sales_order_id, tipado e renomeado"
+    description: "SalesOrderHeader limpo: deduplicado, tipado e renomeado"
     columns:
       - name: sales_order_id
-        description: "Chave primária do pedido"
-        data_tests:
-          - unique
-          - not_null
+        data_tests: [unique, not_null]
       - name: subtotal
-        data_tests:
-          - not_null
+        data_tests: [not_null]
       - name: total_due
-        data_tests:
-          - not_null
+        data_tests: [not_null]
+
+  - name: stg_sales_order_detail
+    description: "SalesOrderDetail limpo: deduplicado, tipado e renomeado"
+    columns:
+      - name: sales_order_detail_id
+        data_tests: [unique, not_null]
+      - name: sales_order_id
+        data_tests: [not_null]
+
+  - name: stg_product
+    description: "Product limpo: deduplicado, tipado e renomeado"
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+
+  - name: stg_customer
+    description: "Customer limpo: deduplicado, tipado e renomeado"
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+
+  - name: stg_person
+    description: "Person limpo: deduplicado, tipado e renomeado"
+    columns:
+      - name: business_entity_id
+        data_tests: [unique, not_null]
+
+  - name: stg_sales_territory
+    description: "SalesTerritory limpo: deduplicado, tipado e renomeado"
+    columns:
+      - name: territory_id
+        data_tests: [unique, not_null]

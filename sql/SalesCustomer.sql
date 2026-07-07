@@ -5,4 +5,3 @@ SELECT [CustomerID]
       ,[AccountNumber]
       ,[ModifiedDate]
   FROM [Sales].[Customer]
-  WHERE (:modified_since IS NULL OR ModifiedDate > :modified_since)

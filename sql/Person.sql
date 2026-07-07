@@ -11,4 +11,3 @@ SELECT [BusinessEntityID]
       ,[Demographics]
       ,[ModifiedDate]
   FROM [Person].[Person]
-  WHERE (:modified_since IS NULL OR ModifiedDate > :modified_since)

@@ -23,4 +23,3 @@ SELECT
     ,Comment
     ,ModifiedDate
 FROM Sales.SalesOrderHeader
-WHERE (:modified_since IS NULL OR ModifiedDate > :modified_since)

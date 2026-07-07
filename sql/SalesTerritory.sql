@@ -8,4 +8,3 @@ SELECT [TerritoryID]
       ,[CostLastYear]
       ,[ModifiedDate]
   FROM [Sales].[SalesTerritory]
-  WHERE (:modified_since IS NULL OR ModifiedDate > :modified_since)

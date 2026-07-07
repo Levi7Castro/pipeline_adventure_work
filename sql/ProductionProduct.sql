@@ -23,4 +23,3 @@ SELECT [ProductID]
       ,[DiscontinuedDate]
       ,[ModifiedDate]
   FROM [Production].[Product]
-  WHERE (:modified_since IS NULL OR ModifiedDate > :modified_since)

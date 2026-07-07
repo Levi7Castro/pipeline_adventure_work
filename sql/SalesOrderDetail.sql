@@ -9,4 +9,3 @@ SELECT [SalesOrderID]
       ,[LineTotal]
       ,[ModifiedDate]
   FROM [Sales].[SalesOrderDetail]
-  WHERE (:modified_since IS NULL OR ModifiedDate > :modified_since)

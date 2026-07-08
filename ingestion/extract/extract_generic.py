@@ -16,18 +16,21 @@ def extract_table(
     engine: Engine,
     sql_filename: str,
     table_name: str,
+    watermark_column: str,
     modified_since: datetime | None = None,
 ) -> pd.DataFrame:
     sql_path = SQL_DIR / sql_filename
-    query = sql_path.read_text(encoding="utf-8")
+    base_query = sql_path.read_text(encoding="utf-8").rstrip().rstrip(";")
+
+    if modified_since is not None:
+        query = f"{base_query}\nWHERE {watermark_column} > :modified_since"
+        params = {"modified_since": modified_since}
+    else:
+        query = base_query
+        params = {}
 
     with engine.connect() as conn:
-        df = pd.read_sql(
-            text(query),
-            conn,
-            params={"modified_since": modified_since},
-            dtype_backend="numpy_nullable",
-        )
+        df = pd.read_sql(text(query), conn, params=params, dtype_backend="numpy_nullable")
 
     logger.info("%s: %s linhas extraídas", table_name, len(df))
     return df

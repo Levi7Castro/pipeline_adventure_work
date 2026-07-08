@@ -187,17 +187,6 @@ dbt docs serve
 
 ---
 
-## ⚠️ Limitações Conhecidas
-
-**Filtro incremental falha em `Customer` e `Person`.** O parâmetro de watermark bindado via `pyodbc` retorna resultado incorreto especificamente nessas duas tabelas (a query completa é retornada em vez de filtrada), mesmo com sintaxe idêntica às demais tabelas, que funcionam normalmente. A causa raiz não foi identificada — testes isolando SQLAlchemy, pandas e pyodbc puro reproduziram o mesmo comportamento, descartando bug de código na aplicação.
-
-**Mitigação atual:** essas duas tabelas rodam sempre em modo `full refresh` (flag `force_full_refresh` em `ingestion/tables.py`), o que é seguro dado o tamanho pequeno de ambas (~20k linhas cada). A camada Silver deduplica de qualquer forma, então a integridade do dado final não é afetada — apenas a eficiência da carga bronze.
-
-**Próximo passo de investigação:** testar com driver ODBC alternativo ou versão diferente do `pyodbc`, e revisar collation/locale da sessão SQL Server.
-
-**Pipeline não é seguro contra execução concorrente.** O padrão leitura-do-watermark → processamento → escrita-do-watermark não possui lock, sujeito a race condition se duas execuções rodarem simultaneamente. Mitigação: não executar `ingestion.main` em paralelo (o Airflow, quando implementado, resolve isso nativamente).
-
----
 
 ## 📈 Evolução do Projeto
 
@@ -213,9 +202,7 @@ dbt docs serve
 * [x] Testes dbt (unique, not_null, relationships)
 * [x] Documentação dbt (`dbt docs generate`)
 * [ ] Orquestração com Apache Airflow
-* [ ] Dimensão de vendedor (`dim_sales_person`)
 * [ ] CI/CD
-* [ ] Investigação da causa raiz do bug de filtro incremental (Customer/Person)
 
 ---
 

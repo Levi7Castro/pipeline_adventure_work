@@ -7,14 +7,13 @@ from sqlalchemy import text
 from sqlalchemy.engine import Engine
 
 from ingestion.database import get_sqlserver_engine, get_postgres_engine
-from ingestion.extract.extract_adventure import extract_sales_order_header
+from ingestion.extract.extract_generic import extract_table
 from ingestion.load.load_adventure import load_dataframe
+from ingestion.tables import TABLES
 
 logger = logging.getLogger(__name__)
 
-TABLE_NAME = "sales_order_header"
 BRONZE_SCHEMA = "bronze"
-WATERMARK_COLUMN = "ModifiedDate"
 
 
 def get_watermark(pg_engine: Engine, table_name: str) -> datetime | None:
@@ -54,40 +53,87 @@ def set_watermark(pg_engine: Engine, table_name: str, value: datetime) -> None:
         )
 
 
-def run(full_refresh: bool = False) -> int:
-    sqlserver_engine = get_sqlserver_engine()
-    pg_engine = get_postgres_engine()
+def run_table(
+    table_cfg: dict,
+    sqlserver_engine: Engine,
+    pg_engine: Engine,
+    full_refresh: bool = False,
+) -> int:
+    """Executa a ingestão de uma tabela: extract -> load -> watermark."""
+    name = table_cfg["name"]
+    sql_filename = table_cfg["sql_filename"]
+    watermark_column = table_cfg["watermark_column"]
 
-    if full_refresh:
+    # Algumas tabelas têm um bug conhecido no filtro incremental via
+    # parâmetro bindado (pyodbc) e precisam sempre de full-refresh.
+    # Ver comentário em ingestion/tables.py.
+    table_force_full = table_cfg.get("force_full_refresh", False)
+    effective_full_refresh = full_refresh or table_force_full
+
+    if effective_full_refresh:
         modified_since = None
-        logger.info("Modo full refresh: ignorando watermark")
+        reason = "flag --full-refresh" if full_refresh else "force_full_refresh na config"
+        logger.info("[%s] Modo full refresh (%s): ignorando watermark", name, reason)
     else:
-        modified_since = get_watermark(pg_engine, TABLE_NAME)
-        logger.info("Watermark atual: %s", modified_since or "nenhum (full load)")
+        modified_since = get_watermark(pg_engine, name)
+        logger.info(
+            "[%s] Watermark atual: %s",
+            name, modified_since or "nenhum (full load)",
+        )
 
-    df = extract_sales_order_header(
+    df = extract_table(
         engine=sqlserver_engine,
+        sql_filename=sql_filename,
+        table_name=name,
+        watermark_column=watermark_column,
         modified_since=modified_since,
     )
 
     if df.empty:
-        logger.info("Nenhuma linha nova. Encerrando sem carga.")
+        logger.info("[%s] Nenhuma linha nova. Encerrando sem carga.", name)
         return 0
 
-    new_watermark = df[WATERMARK_COLUMN].max()
+    new_watermark = df[watermark_column].max()
 
     rows = load_dataframe(
         df,
-        table_name=TABLE_NAME,
+        table_name=name,
         schema=BRONZE_SCHEMA,
-        if_exists="replace" if full_refresh else "append",
+        if_exists="replace" if effective_full_refresh else "append",
         engine=pg_engine,
     )
 
-    set_watermark(pg_engine, TABLE_NAME, new_watermark)
-    logger.info("Watermark atualizado para %s", new_watermark)
+    set_watermark(pg_engine, name, new_watermark)
+    logger.info("[%s] Watermark atualizado para %s", name, new_watermark)
 
     return rows
+
+
+def run(full_refresh: bool = False) -> dict[str, int]:
+    """Itera todas as tabelas configuradas em TABLES.
+
+    Uma tabela que falhar é logada e pulada; as demais continuam.
+    Retorna um dict {table_name: rows_loaded} para as que tiveram sucesso.
+    """
+    sqlserver_engine = get_sqlserver_engine()
+    pg_engine = get_postgres_engine()
+
+    results: dict[str, int] = {}
+    failed: list[str] = []
+
+    for table_cfg in TABLES:
+        name = table_cfg["name"]
+        try:
+            rows = run_table(table_cfg, sqlserver_engine, pg_engine, full_refresh)
+            results[name] = rows
+        except Exception:
+            logger.exception("[%s] Falha na ingestão, pulando para a próxima", name)
+            failed.append(name)
+
+    if failed:
+        logger.warning("Tabelas com falha: %s", ", ".join(failed))
+
+    return results
 
 
 def main() -> int:
@@ -96,7 +142,7 @@ def main() -> int:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
 
-    parser = argparse.ArgumentParser(description="Ingestão SalesOrderHeader → bronze")
+    parser = argparse.ArgumentParser(description="Ingestão multi-tabela → bronze")
     parser.add_argument(
         "--full-refresh",
         action="store_true",
@@ -104,14 +150,17 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    try:
-        rows = run(full_refresh=args.full_refresh)
-    except Exception:
-        logger.exception("Falha na ingestão de SalesOrderHeader")
-        return 1
+    results = run(full_refresh=args.full_refresh)
 
-    logger.info("Ingestão concluída: %s linhas", rows)
-    return 0
+    total = sum(results.values())
+    logger.info(
+        "Ingestão concluída: %s tabelas processadas, %s linhas no total",
+        len(results), total,
+    )
+    for name, rows in results.items():
+        logger.info("  - %s: %s linhas", name, rows)
+
+    return 0 if results else 1
 
 
 if __name__ == "__main__":

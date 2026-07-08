@@ -123,8 +123,6 @@ Modelagem dimensional para consumo analítico.
 | `Person.Person` | `person` | Full refresh* |
 | `Sales.SalesTerritory` | `sales_territory` | Incremental |
 
-\* Ver [Limitações Conhecidas](#-limitações-conhecidas).
-
 ---
 
 ## ⚙️ Configuração
